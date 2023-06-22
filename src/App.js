@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./App.css";
 const { ipcRenderer } = window.require("electron");
 
 const App = () => {
@@ -6,6 +7,7 @@ const App = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [editingPostId, setEditingPostId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     ipcRenderer.send("request-mainprocess-action", "read");
@@ -65,19 +67,24 @@ const App = () => {
     }
     setName("");
     setDescription("");
+    setSearchQuery(""); // Reset search query
+  };
+
+  const searchPosts = () => {
+    if (searchQuery.trim() === "") {
+      return posts; // Return all posts if search query is empty
+    }
+
+    const query = searchQuery.toLowerCase();
+    return posts.filter(
+      (post) =>
+        post.name.toLowerCase().includes(query) ||
+        post.description.toLowerCase().includes(query)
+    );
   };
 
   return (
     <div>
-      {posts &&
-        posts.map((post) => (
-          <div key={post.id}>
-            <h2>{post.name}</h2>
-            <p>{post.description}</p>
-            <button onClick={() => editPost(post.id)}>Edit</button>
-            <button onClick={() => deletePost(post.id)}>Delete</button>
-          </div>
-        ))}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -94,7 +101,26 @@ const App = () => {
         <button type="submit">
           {editingPostId ? "Update Post" : "Add New Post"}
         </button>
+        <br />
+
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search posts"
+        />
+        <button type="button" onClick={searchPosts}>
+          Search
+        </button>
       </form>
+      {searchPosts().map((post) => (
+        <div key={post.id}>
+          <h2>{post.name}</h2>
+          <p>{post.description}</p>
+          <button onClick={() => editPost(post.id)}>Edit</button>
+          <button onClick={() => deletePost(post.id)}>Delete</button>
+        </div>
+      ))}
     </div>
   );
 };
