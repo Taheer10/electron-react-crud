@@ -1,0 +1,14 @@
+{
+  "posts": [
+    {
+      "name": "react js updated",
+      "description": "this is about react js up",
+      "id": 1
+    },
+    {
+      "name": "random js",
+      "description": "this is a random js",
+      "id": 3
+    }
+  ]
+}
